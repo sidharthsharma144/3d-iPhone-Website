@@ -1,14 +1,14 @@
-import { useGSAP } from "@gsap/react"
-import gsap from "gsap"
-import { rightImg, watchImg } from "../utils"
-
+import { useEffect } from "react";  // Ensure you import React hooks
+import gsap from "gsap";
+import { rightImg, watchImg } from "../utils";
 import VideoCarousel from './VideoCarousel';
 
 const Highlights = () => {
-  useGSAP(() => {
-    gsap.to('#title', { opacity: 1, y: 0 })
-    gsap.to('.link', { opacity: 1, y: 0, duration: 1, stagger: 0.25 })
-  }, [])
+  useEffect(() => {
+    // GSAP animations
+    gsap.to('#title', { opacity: 1, y: 0 });
+    gsap.to('.link', { opacity: 1, y: 0, duration: 1, stagger: 0.25 });
+  }, []);  // Empty dependency array means this will run once on mount
 
   return (
     <section id="highlights" className="w-screen overflow-hidden h-full common-padding bg-zinc">
@@ -31,7 +31,7 @@ const Highlights = () => {
         <VideoCarousel />
       </div>
     </section>
-  )
+  );
 }
 
-export default Highlights
+export default Highlights;

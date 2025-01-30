@@ -1,5 +1,4 @@
 import gsap from "gsap";
-import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/all";
 gsap.registerPlugin(ScrollTrigger);
 import { useEffect, useRef, useState } from "react";
@@ -12,7 +11,7 @@ const VideoCarousel = () => {
   const videoSpanRef = useRef([]);
   const videoDivRef = useRef([]);
 
-  // video and indicator
+  // video and indicator state
   const [video, setVideo] = useState({
     isEnd: false,
     startPlay: false,
@@ -24,26 +23,35 @@ const VideoCarousel = () => {
   const [loadedData, setLoadedData] = useState([]);
   const { isEnd, isLastVideo, startPlay, videoId, isPlaying } = video;
 
-  useGSAP(() => {
+  useEffect(() => {
     // slider animation to move the video out of the screen and bring the next video in
     gsap.to("#slider", {
       transform: `translateX(${-100 * videoId}%)`,
       duration: 2,
-      ease: "power2.inOut", // show visualizer https://gsap.com/docs/v3/Eases
+      ease: "power2.inOut",
     });
 
     // video animation to play the video when it is in the view
     gsap.to("#video", {
       scrollTrigger: {
         trigger: "#video",
-        toggleActions: "restart none none none",
-      },
-      onComplete: () => {
-        setVideo((pre) => ({
-          ...pre,
-          startPlay: true,
-          isPlaying: true,
-        }));
+        start: "top bottom", // start when the video reaches the viewport
+        end: "bottom top",   // end when the video leaves the viewport
+        toggleActions: "play none none none",
+        onEnter: () => {
+          setVideo((pre) => ({
+            ...pre,
+            startPlay: true,
+            isPlaying: true,
+          }));
+        },
+        onLeave: () => {
+          setVideo((pre) => ({
+            ...pre,
+            startPlay: false,
+            isPlaying: false,
+          }));
+        },
       },
     });
   }, [isEnd, videoId]);
@@ -59,7 +67,7 @@ const VideoCarousel = () => {
           // get the progress of the video
           const progress = Math.ceil(anim.progress() * 100);
 
-          if (progress != currentProgress) {
+          if (progress !== currentProgress) {
             currentProgress = progress;
 
             // set the width of the progress bar
@@ -93,15 +101,14 @@ const VideoCarousel = () => {
         },
       });
 
-      if (videoId == 0) {
+      if (videoId === 0) {
         anim.restart();
       }
 
       // update the progress bar
       const animUpdate = () => {
         anim.progress(
-          videoRef.current[videoId].currentTime /
-            hightlightsSlides[videoId].videoDuration
+          videoRef.current[videoId].currentTime / hightlightsSlides[videoId].videoDuration
         );
       };
 
@@ -129,7 +136,11 @@ const VideoCarousel = () => {
   const handleProcess = (type, i) => {
     switch (type) {
       case "video-end":
-        setVideo((pre) => ({ ...pre, isEnd: true, videoId: i + 1 }));
+        if (i < hightlightsSlides.length - 1) {
+          setVideo((pre) => ({ ...pre, isEnd: true, videoId: i + 1 }));
+        } else {
+          setVideo((pre) => ({ ...pre, isLastVideo: true }));
+        }
         break;
 
       case "video-last":
