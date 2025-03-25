@@ -8,7 +8,7 @@ function App() {
 
   return (
     <>
-      <main className='bg-black'>
+      <main className='bg-amber-500'>
         <Navbar />
         <Hero /> 
         <Highlights />
